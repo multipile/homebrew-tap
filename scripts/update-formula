@@ -1,0 +1,70 @@
+#!/bin/sh
+# Writes Formula/pile.rb for one release of multipile/pile-cli.
+#
+#   scripts/update-formula <version> <SHA256SUMS>
+#
+# <version> is the release without its v, such as 0.1.1. <SHA256SUMS> is
+# that release's SHA256SUMS file, which holds one sum per archive. The whole
+# formula is written again, so nothing from the last release is left behind.
+set -eu
+
+[ $# -eq 2 ] || { echo "usage: $0 <version> <SHA256SUMS>" >&2; exit 2; }
+version=$1
+sums=$2
+case $version in
+  v*) echo "$0: give the version without its v: ${version#v}" >&2; exit 2 ;;
+esac
+
+sum() {
+  archive="pile-$version-$1.tar.gz"
+  s=$(awk -v f="$archive" '$2 == f || $2 == "*" f { print $1 }' "$sums")
+  printf '%s\n' "$s" | grep -Eq '^[0-9a-f]{64}$' ||
+    { echo "$0: $sums has no single sum for $archive" >&2; exit 1; }
+  printf '%s\n' "$s"
+}
+
+darwin_arm64=$(sum darwin-arm64)
+darwin_amd64=$(sum darwin-amd64)
+linux_arm64=$(sum linux-arm64)
+linux_amd64=$(sum linux-amd64)
+base="https://github.com/multipile/pile-cli/releases/download/v$version"
+
+cd "$(dirname "$0")/.."
+cat >Formula/pile.rb <<RUBY
+# Written by scripts/update-formula. Change the script, not this file.
+class Pile < Formula
+  desc "Declare and read piles, the parts of a git repository"
+  homepage "https://github.com/multipile/pile-cli"
+  license "MIT"
+
+  on_macos do
+    on_arm do
+      url "$base/pile-$version-darwin-arm64.tar.gz"
+      sha256 "$darwin_arm64"
+    end
+    on_intel do
+      url "$base/pile-$version-darwin-amd64.tar.gz"
+      sha256 "$darwin_amd64"
+    end
+  end
+
+  on_linux do
+    on_arm do
+      url "$base/pile-$version-linux-arm64.tar.gz"
+      sha256 "$linux_arm64"
+    end
+    on_intel do
+      url "$base/pile-$version-linux-amd64.tar.gz"
+      sha256 "$linux_amd64"
+    end
+  end
+
+  def install
+    bin.install "pile"
+  end
+
+  test do
+    assert_match version.to_s, shell_output("#{bin}/pile version")
+  end
+end
+RUBY

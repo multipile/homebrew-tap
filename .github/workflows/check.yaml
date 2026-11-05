@@ -1,0 +1,41 @@
+# Every push to main and every pull request installs each formula with brew
+# and runs its test, on Linux and macOS, and checks that Formula/pile.rb is
+# what scripts/update-formula writes for the release it names.
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  formula:
+    name: formula (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      # Taps this checkout as multipile/tap.
+      - uses: Homebrew/actions/setup-homebrew@main
+      - run: brew trust multipile/tap
+      - run: brew style multipile/tap
+      - run: brew audit --strict --online --tap multipile/tap
+      - run: brew install --formula multipile/tap/pile
+      - run: brew test multipile/tap/pile
+
+  generated:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: |
+          version=$(sed -n 's|.*/releases/download/v\([^/]*\)/.*|\1|p' Formula/pile.rb | sort -u)
+          test -n "$version" && test "$(printf '%s\n' "$version" | wc -l)" -eq 1 ||
+            { echo "Formula/pile.rb names no single release" >&2; exit 1; }
+          gh release download "v$version" -R multipile/pile-cli -p SHA256SUMS -D "$RUNNER_TEMP"
+          scripts/update-formula "$version" "$RUNNER_TEMP/SHA256SUMS"
+          git diff --exit-code
+        env:
+          GH_TOKEN: ${{ github.token }}
