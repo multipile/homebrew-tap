@@ -6,23 +6,23 @@ class Pile < Formula
 
   on_macos do
     on_arm do
-      url "https://github.com/multipile/pile-cli/releases/download/v0.1.9/pile-0.1.9-darwin-arm64.tar.gz"
-      sha256 "69462c98eb185c8e57960c2940277394e04034f867da305a818f68fcddf396ae"
+      url "https://github.com/multipile/pile-cli/releases/download/v0.1.11/pile-0.1.11-darwin-arm64.tar.gz"
+      sha256 "f96df34fefe60e18874ceb4233b4cc795e0c7b3b561dcba2a853d6050ae05a94"
     end
     on_intel do
-      url "https://github.com/multipile/pile-cli/releases/download/v0.1.9/pile-0.1.9-darwin-amd64.tar.gz"
-      sha256 "403f13c228c8b4f389c6927249d66d9b8b9b3835a7f2879ef175595457e53cfc"
+      url "https://github.com/multipile/pile-cli/releases/download/v0.1.11/pile-0.1.11-darwin-amd64.tar.gz"
+      sha256 "6d707675e5844202fd11f27cb604f2ce00daebea3dd9350183f6d2144a184845"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/multipile/pile-cli/releases/download/v0.1.9/pile-0.1.9-linux-arm64.tar.gz"
-      sha256 "050c2bd485a952565ce3fa39ce0d2f601350b0704dcba6105739468857cc6c9e"
+      url "https://github.com/multipile/pile-cli/releases/download/v0.1.11/pile-0.1.11-linux-arm64.tar.gz"
+      sha256 "46afdc1a33c2e8a3761a97bf49b6c44fa6370bbc8160a2b08c7f31754af17608"
     end
     on_intel do
-      url "https://github.com/multipile/pile-cli/releases/download/v0.1.9/pile-0.1.9-linux-amd64.tar.gz"
-      sha256 "cdc626b712b2272a5e5800fd1a76240e9c40e5792a50114fb52adca8560992d6"
+      url "https://github.com/multipile/pile-cli/releases/download/v0.1.11/pile-0.1.11-linux-amd64.tar.gz"
+      sha256 "d29fb36f042bc93905c17d5f152f7ac71648758fd313d10edabfa9a67e2f60fa"
     end
   end
 
